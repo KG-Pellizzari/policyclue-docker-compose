@@ -74,7 +74,7 @@ services:
       xpack.security.http.ssl.enabled: false
       xpack.security.transport.ssl.enabled: false
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD:?error}
-      ES_JAVA_OPTS: -Xms512m -Xmx512m
+      ES_JAVA_OPTS: -Xms${ES_HEAP_SIZE:-1g} -Xmx${ES_HEAP_SIZE:-1g}
     volumes:
       - es-data:/usr/share/elasticsearch/data
     security_opt:
@@ -157,7 +157,7 @@ services:
     networks:
       - frontend
       - backend
-    entrypoint: ["sh", "-c", "alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000"]
+    entrypoint: ["sh", "-c", "alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000 --workers ${UVICORN_WORKERS:-2}"]
     healthcheck:
       test: ["CMD", "python3", "-c", "import requests, sys; sys.exit(0) if requests.get('http://localhost:8000/docs').ok else sys.exit(1)"]
       interval: 60s
