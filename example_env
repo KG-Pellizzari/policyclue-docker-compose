@@ -33,6 +33,10 @@ DB_SYNC_POOL_SIZE=2
 DB_SYNC_MAX_OVERFLOW=3
 DB_POOL_TIMEOUT=30
 
+# CAPEv2 sandbox integration (optional — leave empty to disable)
+CAPE_API_URL=
+CAPE_API_TOKEN=
+
 # Only used for ACME with traefik
 ACME_EMAIL=
 ACME_CASERVER=
