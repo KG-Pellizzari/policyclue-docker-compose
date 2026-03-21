@@ -60,7 +60,7 @@ x-policyclue-defaults: &policyclue_defaults
     - /tmp
     - /var/tmp
   volumes:
-    - attachments-data:/data/attachments
+    - pclue-files:/data
   logging:
     driver: json-file
     options:
@@ -322,7 +322,7 @@ services:
 volumes:
   postgres-data:
   es-data:
-  attachments-data:
+  pclue-files:
 
 networks:
   frontend:
