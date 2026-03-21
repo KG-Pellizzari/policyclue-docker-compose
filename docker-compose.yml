@@ -28,6 +28,9 @@ x-policyclue-envs: &policyclue_envs
 
   KS_LICENSE: ${KS_LICENSE}
 
+  CAPE_API_URL: ${CAPE_API_URL:-}
+  CAPE_API_TOKEN: ${CAPE_API_TOKEN:-}
+
   WORKER_SLEEP_INTERVAL: ${WORKER_SLEEP_INTERVAL:-21600}
 
   TZ: ${TIMEZONE:-Europe/Zurich}
@@ -56,6 +59,8 @@ x-policyclue-defaults: &policyclue_defaults
   tmpfs:
     - /tmp
     - /var/tmp
+  volumes:
+    - attachments-data:/data/attachments
   logging:
     driver: json-file
     options:
@@ -241,6 +246,18 @@ services:
       api:
         condition: service_healthy
 
+  worker_scan_attachments:
+    <<: *policyclue_defaults
+    container_name: worker_scan_attachments
+    networks:
+      - backend
+    entrypoint: ["sh", "-c", "python3 worker.py scan_attachments"]
+    depends_on:
+      db:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+
   webapp:
     image: registry.khost.ch/policyclue/webapp:latest
     container_name: webapp
@@ -305,6 +322,7 @@ services:
 volumes:
   postgres-data:
   es-data:
+  attachments-data:
 
 networks:
   frontend:
