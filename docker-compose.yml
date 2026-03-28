@@ -258,6 +258,18 @@ services:
       api:
         condition: service_healthy
 
+  worker_m365_subscriptions:
+    <<: *policyclue_defaults
+    container_name: worker_m365_subscriptions
+    networks:
+      - backend
+    entrypoint: ["sh", "-c", "python3 worker.py m365_subscriptions"]
+    depends_on:
+      db:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+
   webapp:
     image: registry.khost.ch/policyclue/webapp:latest
     container_name: webapp
