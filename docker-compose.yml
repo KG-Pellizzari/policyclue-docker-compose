@@ -2,6 +2,7 @@
 include:
 # - docker-compose-acme.yml # uncomment this line to use it
 # - docker-compose-pgadmin.yml # uncomment this line to use it
+# - docker-compose-ollama.yml # uncomment this line to use it
 
 # define envs for logic containers
 x-policyclue-envs: &policyclue_envs
@@ -30,6 +31,12 @@ x-policyclue-envs: &policyclue_envs
 
   CAPE_API_URL: ${CAPE_API_URL:-}
   CAPE_API_TOKEN: ${CAPE_API_TOKEN:-}
+
+  LLM_ENABLED: ${LLM_ENABLED:-false}
+  LLM_BASE_URL: ${LLM_BASE_URL:-http://ollama:11434/v1}
+  LLM_API_KEY: ${LLM_API_KEY:-ollama}
+  LLM_MODEL: ${LLM_MODEL:-qwen2.5:14b}
+  LLM_TIMEOUT_SECONDS: ${LLM_TIMEOUT_SECONDS:-120}
 
   WORKER_SLEEP_INTERVAL: ${WORKER_SLEEP_INTERVAL:-21600}
 

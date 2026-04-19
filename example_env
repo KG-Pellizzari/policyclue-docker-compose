@@ -40,3 +40,16 @@ CAPE_API_TOKEN=
 # Only used for ACME with traefik
 ACME_EMAIL=
 ACME_CASERVER=
+
+# LLM gateway (optional — leave LLM_ENABLED=false to hide AI features in the UI)
+# Compatible with Ollama (self-hosted), LiteLLM proxy, OpenAI, and Azure OpenAI (via LiteLLM).
+# Defaults target a self-hosted Ollama container with Qwen 2.5 14B — an open-source
+# model with strong JSON-schema adherence and multilingual content generation.
+#   Enable Ollama: uncomment docker-compose-ollama.yml above, then pull the model once:
+#   docker compose exec ollama ollama pull qwen2.5:14b
+# For OpenAI instead: LLM_BASE_URL=https://api.openai.com/v1, LLM_API_KEY=<sk-...>, LLM_MODEL=gpt-4o-mini
+LLM_ENABLED=false
+LLM_BASE_URL=http://ollama:11434/v1
+LLM_API_KEY=ollama
+LLM_MODEL=qwen2.5:14b
+LLM_TIMEOUT_SECONDS=120
