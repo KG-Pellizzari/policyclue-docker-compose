@@ -1,5 +1,10 @@
-# Sample override enabling Traefik HTTPS via Let's Encrypt (ACME)
+# Sample override enabling Traefik HTTPS via a static certificate
 # Place this next to your docker-compose.yml. Docker Compose will auto-load it.
+#
+# Provide your certificate and key on the host, then point the env vars below at them:
+#   SSL_CERT_FILE=/path/to/fullchain.pem
+#   SSL_KEY_FILE=/path/to/privkey.pem
+# Both files are mounted read-only into the traefik container.
 
 services:
   api:
@@ -8,40 +13,47 @@ services:
       - "traefik.docker.network=frontend"
       - "traefik.http.routers.api.rule=Host(`${PCLUE_PORTAL_HOST:?error}`) && (PathPrefix(`/api`) || PathPrefix(`/docs`) || Path(`/openapi.json`))"
       - "traefik.http.routers.api.entrypoints=websecure"
-      - "traefik.http.routers.api.tls.certresolver=le"
+      - "traefik.http.routers.api.tls=true"
       - "traefik.http.routers.api.priority=100"
       - "traefik.http.services.api.loadbalancer.server.port=8000"
+
   webapp:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.webapp.rule=Host(`${PCLUE_PORTAL_HOST:?error}`)"
       - "traefik.http.routers.webapp.entrypoints=websecure"
-      - "traefik.http.routers.webapp.tls.certresolver=le"
+      - "traefik.http.routers.webapp.tls=true"
       - "traefik.http.routers.webapp.priority=1"
       - "traefik.http.services.webapp.loadbalancer.server.port=80"
+
   traefik:
+    # Expose HTTP and HTTPS on the host
     ports:
       - "80:80"
       - "443:443"
+    # Mount the static cert/key; the dynamic config is provided inline via configs
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./certs/ca.crt:/opt/ca.crt:ro
-      - traefik:/traefik
-    environment:
-      - LEGO_CA_CERTIFICATES=/opt/ca.crt
+      - ${SSL_CERT_FILE:?error}:/certs/cert.pem:ro
+      - ${SSL_KEY_FILE:?error}:/certs/key.pem:ro
+    configs:
+      - source: traefik-ssl-dynamic
+        target: /etc/traefik/dynamic.yml
+    # Enable HTTPS, redirect HTTP->HTTPS, and load the cert via the file provider
     command:
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
+      - --providers.file.filename=/etc/traefik/dynamic.yml
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
       - --entrypoints.web.http.redirections.entryPoint.to=websecure
       - --entrypoints.web.http.redirections.entryPoint.scheme=https
-      - --certificatesresolvers.le.acme.email=${ACME_EMAIL:?error}
-      - --certificatesresolvers.le.acme.storage=/traefik/acme.json
-      - --certificatesresolvers.le.acme.httpchallenge=true
-      - --certificatesresolvers.le.acme.httpchallenge.entrypoint=web
-      - --certificatesresolvers.le.acme.caserver=${ACME_CASERVER:-https://acme-v02.api.letsencrypt.org/directory}
-      - --log.level=DEBUG
       - --ping=true
-volumes:
-  traefik:
+
+configs:
+  traefik-ssl-dynamic:
+    content: |
+      tls:
+        certificates:
+          - certFile: /certs/cert.pem
+            keyFile: /certs/key.pem

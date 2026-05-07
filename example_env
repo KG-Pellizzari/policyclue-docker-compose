@@ -1,4 +1,6 @@
 PCLUE_PORTAL_URL=https://app.policyclue.com
+# Hostname only (no scheme/path) — used by Traefik Host() rules in docker-compose-acme.yml / -ssl.yml
+PCLUE_PORTAL_HOST=app.policyclue.com
 PCLUE_ONPREMISE=1
 
 PCLUE_DB_PW=
@@ -37,9 +39,16 @@ DB_POOL_TIMEOUT=30
 CAPE_API_URL=
 CAPE_API_TOKEN=
 
-# Only used for ACME with traefik
+# Only used for ACME with traefik (docker-compose-acme.yml)
+# When using a private ACME server signed by a private CA, drop the CA bundle as ./certs/ca.crt
+# next to docker-compose.yml — it is mounted into traefik for lego to trust the ACME server.
+# Leave ACME_CASERVER empty to use Let's Encrypt; only set it when pointing at a private ACME server.
 ACME_EMAIL=
 ACME_CASERVER=
+
+# Only used for static SSL with traefik (docker-compose-ssl.yml) — absolute paths on the host
+SSL_CERT_FILE=
+SSL_KEY_FILE=
 
 # LLM gateway (optional — leave LLM_ENABLED=false to hide AI features in the UI)
 # Compatible with Ollama (self-hosted), LiteLLM proxy, OpenAI, and Azure OpenAI (via LiteLLM).
