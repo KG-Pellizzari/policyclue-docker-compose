@@ -1,5 +1,6 @@
 # Rename this file to docker-compose.override.yml and enable additional inclusions below
 
 include:
-# - docker-compose-acme.yml # uncomment this line to use it
+# - docker-compose-acme.yml # uncomment this line to use it (mutually exclusive with -ssl)
+# - docker-compose-ssl.yml # uncomment this line to use it (mutually exclusive with -acme)
 # - docker-compose-pgadmin.yml # uncomment this line to use it
