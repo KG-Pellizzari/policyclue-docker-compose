@@ -32,6 +32,9 @@ x-policyclue-envs: &policyclue_envs
   CAPE_API_URL: ${CAPE_API_URL:-}
   CAPE_API_TOKEN: ${CAPE_API_TOKEN:-}
 
+  PHISHING_SENDING_PROFILES: ${PHISHING_SENDING_PROFILES:-}
+  BAS_HOSTNAMES: ${BAS_HOSTNAMES:-}
+
   LLM_ENABLED: ${LLM_ENABLED:-false}
   LLM_BASE_URL: ${LLM_BASE_URL:-http://ollama:11434/v1}
   LLM_API_KEY: ${LLM_API_KEY:-ollama}
@@ -43,7 +46,6 @@ x-policyclue-envs: &policyclue_envs
 
   TZ: ${TIMEZONE:-Europe/Zurich}
 
-  # PostgreSQL connection-pool tuning
   DB_ASYNC_POOL_SIZE: ${DB_ASYNC_POOL_SIZE:-30}
   DB_ASYNC_MAX_OVERFLOW: ${DB_ASYNC_MAX_OVERFLOW:-60}
   DB_SYNC_POOL_SIZE: ${DB_SYNC_POOL_SIZE:-2}
@@ -111,7 +113,7 @@ services:
     image: postgres:17-alpine
     container_name: postgres
     restart: unless-stopped
-    command: ["postgres", "-c", "max_connections=200"]
+    command: ["postgres", "-c", "max_connections=300"]
     networks:
       - backend
     environment:
@@ -181,7 +183,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=frontend"
-      - "traefik.http.routers.api.rule=PathPrefix(`/api`) || PathPrefix(`/docs`) || Path(`/openapi.json`)"
+      - "traefik.http.routers.api.rule=PathPrefix(`/api`) || PathPrefix(`/docs`) || Path(`/openapi.json`) || PathPrefix(`/public`)"
       - "traefik.http.routers.api.entrypoints=web"
       - "traefik.http.routers.api.priority=100"
       - "traefik.http.services.api.loadbalancer.server.port=8000"
@@ -272,6 +274,47 @@ services:
     networks:
       - backend
     entrypoint: ["sh", "-c", "python3 worker.py m365_subscriptions"]
+    depends_on:
+      db:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+
+  # BAS auto-mode: daily target ingestion (logs + M365 → bas_simulation_targets).
+  worker_sync_simulation_targets:
+    <<: *policyclue_defaults
+    container_name: worker_sync_simulation_targets
+    networks:
+      - backend
+    entrypoint: ["sh", "-c", "python3 worker.py sync_simulation_targets"]
+    depends_on:
+      db:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+
+  # BAS auto-mode: monthly scheduling pass (idempotent on last_scheduled_month).
+  worker_schedule_attack_simulations:
+    <<: *policyclue_defaults
+    container_name: worker_schedule_attack_simulations
+    networks:
+      - backend
+    entrypoint: ["sh", "-c", "python3 worker.py schedule_attack_simulations"]
+    depends_on:
+      db:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+
+  # BAS web fallback: daily reminder emails to users with open refresher
+  # training assignments older than 7 days. Targets non-extension users; the
+  # extension's normal /check_site flow already nudges installed users.
+  worker_create_training_reminders:
+    <<: *policyclue_defaults
+    container_name: worker_create_training_reminders
+    networks:
+      - backend
+    entrypoint: ["sh", "-c", "python3 worker.py create_training_reminders"]
     depends_on:
       db:
         condition: service_healthy

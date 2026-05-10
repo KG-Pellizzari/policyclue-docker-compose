@@ -1,7 +1,7 @@
 # Sample override enabling local Ollama for self-hosted LLM inference.
 # Place this next to your docker-compose.yml and uncomment the include line.
 # Then in .env set LLM_ENABLED=true (the other LLM_* defaults already target Ollama).
-# Pull the model once — only needed the first time or when switching models:
+# Pull the model once - only needed the first time or when switching models:
 #   docker compose exec ollama ollama pull qwen2.5:14b
 # Qwen 2.5 14B is a strong open-source default: native tool/function calling, reliable
 # JSON-schema adherence, multilingual. Runs on a single consumer GPU or slowly on CPU.
