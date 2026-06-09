@@ -27,20 +27,19 @@ x-policyclue-envs: &policyclue_envs
   MSENTRA_CLIENT_SECRET: ${MSENTRA_CLIENT_SECRET}
   MSENTRA_TENANT_ID: ${MSENTRA_TENANT_ID}
 
-  KS_LICENSE: ${KS_LICENSE}
+  SERVICES_GATE_URL: ${SERVICES_GATE_URL:-}
+  SERVICES_GATE_USER: ${SERVICES_GATE_USER:-}
+  SERVICES_GATE_PASSWORD: ${SERVICES_GATE_PASSWORD:-}
+  OVERRIDE_SANDBOX_URL: ${OVERRIDE_SANDBOX_URL:-}
+  OVERRIDE_SANDBOX_USER: ${OVERRIDE_SANDBOX_USER:-}
+  OVERRIDE_SANDBOX_API_KEY: ${OVERRIDE_SANDBOX_API_KEY:-}
 
-  CAPE_API_URL: ${CAPE_API_URL:-}
-  CAPE_API_TOKEN: ${CAPE_API_TOKEN:-}
-
-  PHISHING_SENDING_PROFILES: ${PHISHING_SENDING_PROFILES:-}
   BAS_HOSTNAMES: ${BAS_HOSTNAMES:-}
 
-  LLM_ENABLED: ${LLM_ENABLED:-false}
-  LLM_BASE_URL: ${LLM_BASE_URL:-http://ollama:11434/v1}
-  LLM_API_KEY: ${LLM_API_KEY:-ollama}
-  LLM_MODEL: ${LLM_MODEL:-qwen2.5:14b}
+  LLM_MODEL: ${LLM_MODEL}
   LLM_TIMEOUT_SECONDS: ${LLM_TIMEOUT_SECONDS:-120}
-  LLM_VERIFY_TLS: ${LLM_VERIFY_TLS:-true}
+  OVERRIDE_LLM_BASE_URL: ${OVERRIDE_LLM_BASE_URL:-}
+  OVERRIDE_LLM_API_KEY: ${OVERRIDE_LLM_API_KEY:-}
 
   WORKER_SLEEP_INTERVAL: ${WORKER_SLEEP_INTERVAL:-21600}
 
@@ -262,6 +261,18 @@ services:
     networks:
       - backend
     entrypoint: ["sh", "-c", "python3 worker.py scan_attachments"]
+    depends_on:
+      db:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+        
+  worker_scan_pii:
+    <<: *policyclue_defaults
+    container_name: worker_scan_pii
+    networks:
+      - backend
+    entrypoint: ["sh", "-c", "python3 worker.py scan_pii"]
     depends_on:
       db:
         condition: service_healthy
