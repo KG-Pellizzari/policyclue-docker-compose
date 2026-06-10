@@ -29,7 +29,8 @@ Compose. Full deployment, operations, and SSO documentation lives at
 | `docker-compose.yml` | The base stack: Postgres, Redis, Elasticsearch, the API + workers, the webapp, and Traefik. |
 | `.env.example` | Template for `.env`. Copy and fill in. |
 | `docker-compose.override.template` | Template for `docker-compose.override.yml`. Copy and uncomment the includes you want. |
-| `docker-compose-acme.yml` | Optional override: Traefik with HTTPS via Let's Encrypt. |
+| `docker-compose-acme.yml` | Optional override: Traefik with HTTPS via static certificates. |
+| `docker-compose-ssl.yml` | Optional override: Traefik with HTTPS via Let's Encrypt. |
 | `docker-compose-pgadmin.yml` | Optional override: pgAdmin on port `8081` for database inspection. |
 | `docker-compose-ollama.yml` | Optional override: self-hosted Ollama container for on-prem LLM inference. |
 
