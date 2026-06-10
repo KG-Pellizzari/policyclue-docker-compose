@@ -1,9 +1,4 @@
 ---
-include:
-# - docker-compose-acme.yml # uncomment this line to use it
-# - docker-compose-pgadmin.yml # uncomment this line to use it
-# - docker-compose-ollama.yml # uncomment this line to use it
-
 # define envs for logic containers
 x-policyclue-envs: &policyclue_envs
   DATABASE_URL: postgresql+psycopg2://pclue:${PCLUE_DB_PW:?error}@db:5432/policycluedb
