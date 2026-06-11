@@ -87,8 +87,8 @@ merge into the base services on top of the base file.
   docker compose exec ollama ollama pull qwen2.5:14b
   ```
   Then set `OVERRIDE_LLM_BASE_URL=http://ollama:11434/v1` and
-  `LLM_MODEL=qwen2.5:14b` in `.env` to route LLM calls to this local
-  Ollama instead of the central PolicyClue services gateway. Uncomment
+  `OVERRIDE_LLM_MODEL=qwen2.5:14b` in `.env` to route LLM calls to this
+  local Ollama instead of the central PolicyClue services gateway. Uncomment
   the GPU `deploy:` block in the file for NVIDIA acceleration. See the
   Services Gateway / LLM sections in the
   [official deployment docs](https://docs.policyclue.com/deploy/deployment/)

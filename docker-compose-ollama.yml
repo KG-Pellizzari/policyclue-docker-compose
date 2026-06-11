@@ -2,12 +2,12 @@
 # Place this next to your docker-compose.yml and uncomment the include line.
 # Then in .env point the portal at the local Ollama instead of the gateway:
 #   OVERRIDE_LLM_BASE_URL=http://ollama:11434/v1
-#   LLM_MODEL=qwen2.5:14b
+#   OVERRIDE_LLM_MODEL=qwen2.5:14b
 # Pull the model once - only needed the first time or when switching models:
 #   docker compose exec ollama ollama pull qwen2.5:14b
 # Qwen 2.5 14B is a strong open-source default: native tool/function calling, reliable
 # JSON-schema adherence, multilingual. Runs on a single consumer GPU or slowly on CPU.
-# Lighter alternative for CPU-only hosts: LLM_MODEL=qwen2.5:7b (pull that instead).
+# Lighter alternative for CPU-only hosts: OVERRIDE_LLM_MODEL=qwen2.5:7b (pull that instead).
 services:
   ollama:
     image: ollama/ollama:latest
