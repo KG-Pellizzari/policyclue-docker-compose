@@ -52,8 +52,4 @@ services:
 
 configs:
   traefik-ssl-dynamic:
-    content: |
-      tls:
-        certificates:
-          - certFile: /certs/cert.pem
-            keyFile: /certs/key.pem
+    file: ./traefik/dynamic.yml
